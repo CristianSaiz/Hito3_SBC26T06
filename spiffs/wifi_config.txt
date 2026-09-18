@@ -1,0 +1,3 @@
+SSID=NK_Ultra
+PASS=password
+AP_PASS=SBC26T06$

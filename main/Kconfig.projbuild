@@ -1,0 +1,7 @@
+menu "Configuracion Wi-Fi SBC"
+    config AP_WIFI_PASSWORD
+        string "Contraseña del SoftAP de rescate"
+        default "12345678"
+        help
+            Contraseña WPA2 para la red de recuperación. Minimo 8 caracteres.
+endmenu

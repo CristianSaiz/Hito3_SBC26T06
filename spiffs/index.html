@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Cautivo - SBC UPM</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>🛸 ESP32 IoT - Hito 3</h2>
+            <p class="subtitle">Sistemas Basados en Computador (UPM)</p>
+        </div>
+        
+        <!-- Saludo Personalizado al Tribunal (Punto 2) -->
+        <div class="welcome-card">
+            <h3>Bienvenidos, Profs. Vicente y Bernardo</h3>
+            <p>Portal Cautivo de provisión de emergencia <i>Failover</i> del grupo <b>SBC26T06</b>.</p>
+        </div>
+
+        <div class="card">
+            <h3>Configuración de Red Wi-Fi (STA)</h3>
+            <form action="/save" method="POST">
+                <label for="ssid">Nombre de Red (SSID):</label>
+                <div class="scan-group">
+                    <input type="text" id="ssid" name="ssid" placeholder="Selecciona o escribe el SSID" required maxlength="32">
+                    <button type="button" id="btn-scan" onclick="scanWifi()">🔍 Escanear</button>
+                </div>
+                
+                <!-- Resultados del Escaneo Dinámico (Punto 3) -->
+                <div id="scan-results" class="scan-results hidden">
+                    <label for="wifi-select">Redes Visibles en 2.4 GHz:</label>
+                    <select id="wifi-select" onchange="selectWifi(this.value)">
+                        <option value="">-- Selecciona una red --</option>
+                    </select>
+                </div>
+
+                <label for="pass">Contraseña (WPA2):</label>
+                <input type="password" id="pass" name="pass" placeholder="Clave de acceso" required maxlength="64">
+
+                <button type="submit" class="btn-primary">💾 Guardar y Conectar</button>
+            </form>
+        </div>
+
+        <div class="footer">
+            <p>Grupo SBC26T06 &copy; 2026 UPM</p>
+        </div>
+    </div>
+
+    <!-- Script de Integración Asíncrona (AJAX Fetch API) -->
+    <script>
+        function scanWifi() {
+            const btn = document.getElementById('btn-scan');
+            const resultsDiv = document.getElementById('scan-results');
+            const select = document.getElementById('wifi-select');
+            
+            btn.disabled = true;
+            btn.innerText = 'Buscando...';
+            select.innerHTML = '<option value="">Escaneando espectro Wi-Fi...</option>';
+            resultsDiv.classList.remove('hidden');
+
+            fetch('/scan')
+                .then(response => response.json())
+                .then(data => {
+                    select.innerHTML = '<option value="">-- Selecciona una red --</option>';
+                    if (!data || data.length === 0) {
+                        select.innerHTML += '<option value="">No se encontraron redes</option>';
+                    } else {
+                        data.forEach(ap => {
+                            select.innerHTML += `<option value="${ap.ssid}">${ap.ssid} (${ap.rssi} dBm)</option>`;
+                        });
+                    }
+                    btn.disabled = false;
+                    btn.innerText = '🔍 Escanear';
+                })
+                .catch(err => {
+                    console.error('Error al escanear:', err);
+                    select.innerHTML = '<option value="">Error en el escaneo de red</option>';
+                    btn.disabled = false;
+                    btn.innerText = '🔍 Escanear';
+                });
+        }
+
+        function selectWifi(val) {
+            if (val) {
+                document.getElementById('ssid').value = val;
+            }
+        }
+    </script>
+</body>
+</html>
